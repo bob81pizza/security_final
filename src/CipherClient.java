@@ -41,6 +41,7 @@ public class CipherClient
                 DataOutputStream dOut = new DataOutputStream(s.getOutputStream());
                 dOut.writeInt(encryptedText.length);
                 dOut.write(encryptedText);
+                dOut.close();
                 
 
                 
