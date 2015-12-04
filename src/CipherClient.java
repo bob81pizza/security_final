@@ -23,6 +23,7 @@ public class CipherClient
                 //Store key in file
                 ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("KeyFile.xx"));
                 out.writeObject(myKey);
+                out.close();
                 
                 //Encypher text
                 Cipher c;
@@ -33,17 +34,17 @@ public class CipherClient
                 
                 byte[] text = message.getBytes();
                 byte[] encryptedText = c.doFinal(text);
-                
+
                 //Creat socket
                 Socket s = new Socket(host, port);
-                
-                //Send ciphered text
-//                CipherOutputStream cipherOut = new CipherOutputStream(s.getOutputStream(), c);
-//                cipherOut.write(text);
                 
                 DataOutputStream dOut = new DataOutputStream(s.getOutputStream());
                 dOut.writeInt(encryptedText.length);
                 dOut.write(encryptedText);
+                
+
+                
+                
                 
                 
                 

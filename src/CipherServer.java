@@ -21,8 +21,6 @@ public class CipherServer
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream("KeyFile.xx"));
                 Key k = (Key)in.readObject();
 
-                System.out.println(k);
-
                 Cipher c;
 
                 c = Cipher.getInstance("DES/ECB/PKCS5Padding");
@@ -32,16 +30,12 @@ public class CipherServer
                 DataInputStream dIn = new DataInputStream(s.getInputStream());
                 int length = dIn.readInt();
 
-//                    if(length>0){
-//                        byte [] message = new byte[length];
-//                        dIn.readFully(message, 0, message.length);
-//                        System.out.println(message);
-//                    }
-
-
-//                    BufferedReader br = new BufferedReader(new InputStreamReader(cipherIn));
-//                    
-//                    System.out.println(br.readLine());
+                    if(length>0){
+                        byte [] message = new byte[length];
+                        dIn.readFully(message, 0, message.length);
+                        byte[] decryptedText = c.doFinal(message);
+                        System.out.println(new String(decryptedText));
+                    }
 
             }
 
