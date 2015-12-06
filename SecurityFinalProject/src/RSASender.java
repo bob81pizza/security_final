@@ -59,17 +59,14 @@ public class RSASender {
 
                 //Encrypt message
                 final byte[] cipherText = encrypt(message, k);
-                System.out.println("Cipher text " + cipherText);
 
                 //Hash
                 MessageDigest md = MessageDigest.getInstance("SHA-256");
-                md.update(cipherText);
+                md.update(message.getBytes());
                 byte hashText[] = md.digest();
-                System.out.println("Hash Text " + hashText);
 
                 //Encrypt Hash
                 final byte encryptedHash[] = encrypt(hashText, key.getPrivate());
-                System.out.println("Encrypted hash " + encryptedHash);
                 
                 //Send both message and hash
                 Socket s = new Socket(host, port);
@@ -115,4 +112,5 @@ public class RSASender {
         }
         return cipherText;
     }
+
 }

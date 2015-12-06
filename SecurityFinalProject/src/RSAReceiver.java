@@ -11,6 +11,7 @@ import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -32,7 +33,8 @@ public class RSAReceiver {
             Generate public/private key
             Store public key in file
             --Wait for Alice to do stuff
-            Receive message from Alice
+            Receive encrypted message from Alice
+            Receive encrypted hash(message) from Alice
             Read Alice's public key from file
             Decrypt H(m) using Alice's public key
             Decrypt M using Bob's private key
@@ -59,37 +61,35 @@ public class RSAReceiver {
                     ObjectInputStream in = new ObjectInputStream(new FileInputStream("AliceFile.xx"));
                     PublicKey k = (PublicKey)in.readObject();
 
-                    //Get Message from Alice
+                    //Get Messages from Alice
                     DataInputStream dIn = new DataInputStream(s.getInputStream());
+                    
+                    //Read in encrypted message
                     int length = dIn.readInt();
-
                         if(length>0){
-                            byte[] message = new byte[length];
-                            dIn.readFully(message, 0, message.length);
-                            String decryptedText = decrypt(message, key.getPrivate());
+                            byte[] encryptedMessage = new byte[length];
+                            dIn.readFully(encryptedMessage, 0, encryptedMessage.length);
+                            String decryptedText = decrypt(encryptedMessage, key.getPrivate());
                             decryptedMessage = decryptedText;
-                            System.out.println(decryptedText);
-                            System.out.println("decrypted message get bytes " + decryptedMessage.getBytes());
+                            System.out.println("Decrypted Message: " + decryptedMessage);
                         }
                         
+                    //Read in encrypted Hash
                     length = dIn.readInt();
                         if(length>0){
-                            byte[] hash = new byte[length];
-                            dIn.readFully(hash, 0, hash.length);
-                            System.out.println("Encrypted Hash " + hash);
-                            byte[] decryptedHash = decrypt(hash, k);
+                            byte[] encryptedHash = new byte[length];
+                            dIn.readFully(encryptedHash, 0, encryptedHash.length);
+                            byte[] decryptedHash = decrypt(encryptedHash, k);
                             
                             MessageDigest md = MessageDigest.getInstance("SHA-256");
                             md.update(decryptedMessage.getBytes());
-                            System.out.println("decrypted message bytes " + decryptedMessage.getBytes());
-                            byte hashText[] = md.digest();
-                            System.out.println("decrypted hash" + decryptedHash);
-                            System.out.println("hashed thing" + hashText);
-                           
+                            byte[] hashText = md.digest();
                             
-                            
-                            if(decryptedHash == hashText){
+                            if(Arrays.equals(decryptedHash,hashText)){
                                 System.out.println("Signature verified");
+                            }
+                            else{
+                                System.out.println("Signature not verified");
                             }
                         }
 
@@ -134,4 +134,12 @@ public class RSAReceiver {
 
     return decryptedText;
   }
+    private static String bytes2String(byte[] bytes) {
+    StringBuilder string = new StringBuilder();
+    for (byte b : bytes) {
+        String hexString = Integer.toHexString(0x00FF & b);
+        string.append(hexString.length() == 1 ? "0" + hexString : hexString);
+    }
+    return string.toString();
+}
 }
